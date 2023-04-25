@@ -2,6 +2,7 @@ import express from "express";
 import * as database from "./database/database";
 import sessionRouter from "./routes/sessionRouter";
 import bodyParser from "body-parser";
+import cors from "cors";
 
 const startDatabase = async () => {
   await database.connect();
@@ -12,6 +13,8 @@ startDatabase();
 
 const app = express();
 const port = 3000;
+
+app.use(cors());
 
 app.use(bodyParser.json());
 

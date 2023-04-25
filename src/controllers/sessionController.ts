@@ -14,8 +14,8 @@ export const getSessions = async (_, response) => {
     });
     response.json({ success: true, sessions });
   } catch (error) {
-    console.error(error);
-    response.status(500).json({ error });
+    console.error("Error getting sessions:", error);
+    response.status(500).json({ error: "Error getting sessions" });
   }
 };
 
@@ -38,8 +38,10 @@ export const createGameSession = async (request, response) => {
 
     response.json({ success: true, session });
   } catch (error) {
-    console.error(error);
-    response.status(500).json({ error });
+    console.error("Error creating game session:", error);
+    response
+      .status(500)
+      .json({ error: "There was an error when creating your room" });
   }
 };
 
@@ -82,7 +84,9 @@ export const joinGameSession = async (request, response) => {
 
     response.json({ success: true, user });
   } catch (error) {
-    console.error(error);
-    response.status(500).json({ error });
+    console.error("Error joining game session:", error);
+    response
+      .status(500)
+      .json({ error: "There was an error when trying to join the room" });
   }
 };
