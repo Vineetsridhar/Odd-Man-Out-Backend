@@ -1,6 +1,6 @@
 import { DataTypes, Model, Optional, Sequelize } from "sequelize";
 import { sequelize } from "../database/database";
-import { User } from "./User";
+import { User, UserInstance } from "./User";
 
 type GameType = "classic";
 type SessionAttributes = {
@@ -18,6 +18,7 @@ interface SessionInstance
     SessionAttributes {
   createdAt?: Date;
   updatedAt?: Date;
+  users?: UserInstance[];
 }
 
 export const Session = sequelize.define<SessionInstance>(
