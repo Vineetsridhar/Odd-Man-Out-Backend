@@ -12,10 +12,29 @@ export const getSessions = async (_, response) => {
         },
       ],
     });
-    response.json({ success: true, sessions });
+    response.json({ sessions });
   } catch (error) {
     console.error("Error getting sessions:", error);
     response.status(500).json({ error: "Error getting sessions" });
+  }
+};
+
+export const getSession = async (request, response) => {
+  try {
+    const { roomCode } = request.params;
+    const session = await Session.findOne({
+      where: { roomCode },
+      include: [
+        {
+          model: User,
+          as: "users",
+        },
+      ],
+    });
+    response.json({ session });
+  } catch (error) {
+    console.error("Error getting session:", error);
+    response.status(500).json({ error: "Error getting session" });
   }
 };
 
@@ -29,14 +48,14 @@ export const createGameSession = async (request, response) => {
 
     const roomCode = generateRandomString();
     const session = await Session.create({ roomCode, gameType: "classic" });
-    await User.create({
+    const user = await User.create({
       nickname,
       isHost: true,
       points: 0,
       sessionId: session.id,
     });
 
-    response.json({ success: true, session });
+    response.json({ session, user });
   } catch (error) {
     console.error("Error creating game session:", error);
     response
@@ -65,6 +84,7 @@ export const joinGameSession = async (request, response) => {
         },
       ],
     });
+
     if (!session) {
       return response.status(404).json({ error: "Session not found" });
     }
@@ -82,7 +102,7 @@ export const joinGameSession = async (request, response) => {
       sessionId: session.id,
     });
 
-    response.json({ success: true, user });
+    response.json({ session, user });
   } catch (error) {
     console.error("Error joining game session:", error);
     response
