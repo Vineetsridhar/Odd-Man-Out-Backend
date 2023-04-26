@@ -4,10 +4,10 @@ dotenv.config();
 
 export const sequelize = new Sequelize(
   "postgres",
-  process.env.USERNAME,
-  process.env.PASSWORD,
+  process.env.DB_USERNAME,
+  process.env.DB_PASSWORD,
   {
-    host: process.env.HOSTNAME,
+    host: process.env.DB_HOSTNAME,
     dialect: "postgres",
   }
 );

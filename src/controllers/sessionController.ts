@@ -40,7 +40,6 @@ export const getSession = async (request, response) => {
 
 export const createGameSession = async (request, response) => {
   try {
-    console.log(request);
     const { nickname } = request.body;
     if (!nickname) {
       return response.status(400).json({ error: "Missing nickname" });
@@ -94,6 +93,9 @@ export const joinGameSession = async (request, response) => {
     if (session.users.find((user) => user.nickname === nickname)) {
       return response.status(400).json({ error: "Nickname already taken" });
     }
+    if (session.gameEndedAt) {
+      return response.status(400).json({ error: "Game has ended" });
+    }
 
     const user = await User.create({
       nickname,
@@ -101,6 +103,7 @@ export const joinGameSession = async (request, response) => {
       points: 0,
       sessionId: session.id,
     });
+    session.users.push(user);
 
     response.json({ session, user });
   } catch (error) {
