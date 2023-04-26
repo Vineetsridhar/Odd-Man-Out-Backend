@@ -4,7 +4,7 @@ import sessionRouter from "./routes/sessionRouter";
 import bodyParser from "body-parser";
 import cors from "cors";
 import { Server } from "socket.io";
-import { createServer } from "http";
+import * as http from "http";
 
 const startDatabase = async () => {
   await database.connect();
@@ -16,17 +16,20 @@ startDatabase();
 const app = express();
 const port = 3000;
 
-const httpServer = createServer(app);
-const io = new Server(httpServer);
+const httpServer = http.createServer(app);
+const io = new Server(httpServer, {
+  cors: {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST"],
+  },
+});
 
 app.set("io", io);
 
 io.on("connection", (socket) => {
-  console.log("a user connected");
-});
-
-io.on("disconnect", () => {
-  console.log("user disconnected");
+  socket.on("disconnect", () => {
+    console.log("user disconnected");
+  });
 });
 
 app.use(cors());
@@ -39,6 +42,6 @@ app.get("/", async (request, response) => {
 
 app.use("/sessions", sessionRouter);
 
-app.listen(port, () => {
+httpServer.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);
 });
