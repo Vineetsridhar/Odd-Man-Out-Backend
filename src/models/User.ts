@@ -9,7 +9,7 @@ type UserAttributes = {
   roomId: string;
 };
 
-interface UserCreationAttributes extends Optional<UserAttributes, "sid"> {}
+interface UserCreationAttributes extends UserAttributes {}
 
 export interface UserInstance
   extends Model<UserAttributes, UserCreationAttributes>,
@@ -37,10 +37,6 @@ export const User = sequelize.define<UserInstance>("User", {
   },
   roomId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
-  },
-  sessionId: {
-    type: DataTypes.STRING,
     allowNull: false,
   },
 });
