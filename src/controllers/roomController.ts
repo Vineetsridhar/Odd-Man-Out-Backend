@@ -53,10 +53,14 @@ export const createGameRoom = async (request, response) => {
       points: 0,
       roomId: room.id,
     });
-    response.cookie("userId", user.id, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24,
-    });
+    response.cookie(
+      "data",
+      { userId: user.id, roomCode },
+      {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24,
+      }
+    );
 
     response.json({ room, user });
   } catch (error) {
@@ -109,6 +113,15 @@ export const joinGameRoom = async (request, response) => {
     });
     room.users.push(user);
 
+    response.cookie(
+      "data",
+      { userId: user.id, roomCode },
+      {
+        httpOnly: true,
+        maxAge: 1000 * 60 * 60 * 24,
+      }
+    );
+
     response.json({ room, user });
   } catch (error) {
     console.error("Error joining game room:", error);
@@ -120,7 +133,12 @@ export const joinGameRoom = async (request, response) => {
 
 export const joinGameRoomCookie = async (request, response) => {
   try {
-    const { userId } = request.cookies;
+    if (!request.cookies.data) {
+      return response.status(400).json({ error: "Missing cookie" });
+    }
+    const { data } = request.cookies;
+
+    const { userId } = data;
     const user = await User.findOne({
       where: {
         id: userId,
@@ -162,7 +180,8 @@ export const joinGameRoomCookie = async (request, response) => {
 
 export const leaveGameRoom = async (request, response) => {
   try {
-    const { userId } = request.cookies;
+    const { data } = request.cookies;
+    const { userId } = data;
 
     const user = await User.findOne({
       where: {
@@ -176,7 +195,7 @@ export const leaveGameRoom = async (request, response) => {
 
     await user.destroy();
 
-    response.clearCookie("userId");
+    response.clearCookie("data");
 
     response.json({ success: true });
   } catch (error) {
