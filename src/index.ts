@@ -38,6 +38,19 @@ const io = new Server(httpServer, {
     methods: ["GET", "POST"],
   },
 });
+
+io.on("connection", (socket) => {
+  socket.on("join-room", (roomCode) => {
+    console.log(`User joined room ${roomCode}`);
+    socket.join(roomCode);
+  });
+
+  socket.on("leave-room", (roomCode) => {
+    console.log(`User left room ${roomCode}`);
+    socket.leave(roomCode);
+  });
+});
+
 httpServer.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);
 });

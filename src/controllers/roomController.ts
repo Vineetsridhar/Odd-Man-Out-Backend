@@ -159,3 +159,30 @@ export const joinGameRoomCookie = async (request, response) => {
       .json({ error: "There was an error when trying to join the room" });
   }
 };
+
+export const leaveGameRoom = async (request, response) => {
+  try {
+    const { userId } = request.cookies;
+
+    const user = await User.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!user) {
+      return response.status(404).json({ error: "User not found" });
+    }
+
+    await user.destroy();
+
+    response.clearCookie("userId");
+
+    response.json({ success: true });
+  } catch (error) {
+    console.error("Error leaving game room:", error);
+    response
+      .status(500)
+      .json({ error: "There was an error when trying to leave the room" });
+  }
+};
