@@ -52,7 +52,10 @@ export const createGameRoom = async (request, response) => {
       isHost: true,
       points: 0,
       roomId: room.id,
-      sessionId: request.sessionID,
+    });
+    response.cookie("userId", user.id, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24,
     });
 
     response.json({ room, user });
@@ -103,9 +106,50 @@ export const joinGameRoom = async (request, response) => {
       isHost: false,
       points: 0,
       roomId: room.id,
-      sessionId: request.sessionID,
     });
     room.users.push(user);
+
+    response.json({ room, user });
+  } catch (error) {
+    console.error("Error joining game room:", error);
+    response
+      .status(500)
+      .json({ error: "There was an error when trying to join the room" });
+  }
+};
+
+export const joinGameRoomCookie = async (request, response) => {
+  try {
+    const { userId } = request.cookies;
+    const user = await User.findOne({
+      where: {
+        id: userId,
+      },
+    });
+
+    const room = await Room.findOne({
+      where: {
+        id: user.roomId,
+      },
+      include: [
+        {
+          model: User,
+          as: "users",
+        },
+      ],
+    });
+
+    if (!user) {
+      return response.status(404).json({ error: "User not found" });
+    }
+
+    if (!room) {
+      return response.status(404).json({ error: "Room not found" });
+    }
+
+    if (room.gameEndedAt) {
+      return response.status(400).json({ error: "Game has ended" });
+    }
 
     response.json({ room, user });
   } catch (error) {

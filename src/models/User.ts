@@ -1,27 +1,31 @@
-import { DataTypes, Model, Optional } from "sequelize";
+import { DataTypes, Model, Optional, UUIDV1, UUIDV4 } from "sequelize";
 import { sequelize } from "../database/database";
+import { RoomInstance } from "./Room";
 
 type UserAttributes = {
-  sessionId: string;
+  id: string;
   nickname: string;
   isHost: boolean;
   points: number;
   roomId: string;
 };
 
-interface UserCreationAttributes extends UserAttributes {}
+interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
 
 export interface UserInstance
   extends Model<UserAttributes, UserCreationAttributes>,
     UserAttributes {
   createdAt?: Date;
   updatedAt?: Date;
+  room?: RoomInstance;
 }
 
 export const User = sequelize.define<UserInstance>("User", {
-  sessionId: {
-    type: DataTypes.STRING,
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: UUIDV1,
     primaryKey: true,
+    allowNull: false,
   },
   nickname: {
     type: DataTypes.STRING,
@@ -36,7 +40,7 @@ export const User = sequelize.define<UserInstance>("User", {
     allowNull: false,
   },
   roomId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false,
   },
 });

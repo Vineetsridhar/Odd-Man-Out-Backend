@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional, Sequelize } from "sequelize";
+import { DataTypes, Model, Optional, Sequelize, UUIDV1 } from "sequelize";
 import { sequelize } from "../database/database";
 import { User, UserInstance } from "./User";
 
@@ -13,7 +13,7 @@ type RoomAttributes = {
 
 type RoomCreationAttributes = Optional<RoomAttributes, "id">;
 
-interface RoomInstance
+export interface RoomInstance
   extends Model<RoomAttributes, RoomCreationAttributes>,
     RoomAttributes {
   createdAt?: Date;
@@ -25,9 +25,10 @@ export const Room = sequelize.define<RoomInstance>(
   "Room",
   {
     id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
+      type: DataTypes.UUID,
+      defaultValue: UUIDV1,
       primaryKey: true,
+      allowNull: false,
     },
     roomCode: {
       type: DataTypes.STRING,

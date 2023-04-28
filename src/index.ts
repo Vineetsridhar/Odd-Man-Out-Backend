@@ -5,9 +5,9 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import { Server } from "socket.io";
 import * as http from "http";
-import session from "express-session";
 import * as dotenv from "dotenv";
 dotenv.config();
+import cookieParser from "cookie-parser";
 
 const startDatabase = async () => {
   await database.connect();
@@ -23,22 +23,13 @@ const httpServer = http.createServer(app);
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
-    methods: ["POST", "PUT", "GET", "OPTIONS", "HEAD"],
+    origin: true,
     credentials: true,
   })
 );
+app.use(cookieParser());
 app.use(bodyParser.json());
-app.use(
-  session({
-    secret: process.env.SESSION_KEY,
-    saveUninitialized: false,
-    resave: false,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24,
-    },
-  })
-);
+
 app.use("/rooms", roomRouter);
 
 const io = new Server(httpServer, {
