@@ -2,14 +2,14 @@ import { DataTypes, Model, Optional } from "sequelize";
 import { sequelize } from "../database/database";
 
 type UserAttributes = {
-  id: string;
+  sessionId: string;
   nickname: string;
   isHost: boolean;
   points: number;
-  sessionId: string;
+  roomId: string;
 };
 
-interface UserCreationAttributes extends Optional<UserAttributes, "id"> {}
+interface UserCreationAttributes extends Optional<UserAttributes, "sid"> {}
 
 export interface UserInstance
   extends Model<UserAttributes, UserCreationAttributes>,
@@ -19,9 +19,8 @@ export interface UserInstance
 }
 
 export const User = sequelize.define<UserInstance>("User", {
-  id: {
-    type: DataTypes.INTEGER,
-    autoIncrement: true,
+  sessionId: {
+    type: DataTypes.STRING,
     primaryKey: true,
   },
   nickname: {
@@ -36,8 +35,12 @@ export const User = sequelize.define<UserInstance>("User", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  sessionId: {
+  roomId: {
     type: DataTypes.INTEGER,
+    allowNull: false,
+  },
+  sessionId: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
 });

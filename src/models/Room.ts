@@ -3,7 +3,7 @@ import { sequelize } from "../database/database";
 import { User, UserInstance } from "./User";
 
 type GameType = "classic";
-type SessionAttributes = {
+type RoomAttributes = {
   id: string;
   roomCode: string;
   gameEndedAt?: Date;
@@ -11,18 +11,18 @@ type SessionAttributes = {
   gameType: GameType;
 };
 
-type SessionCreationAttributes = Optional<SessionAttributes, "id">;
+type RoomCreationAttributes = Optional<RoomAttributes, "id">;
 
-interface SessionInstance
-  extends Model<SessionAttributes, SessionCreationAttributes>,
-    SessionAttributes {
+interface RoomInstance
+  extends Model<RoomAttributes, RoomCreationAttributes>,
+    RoomAttributes {
   createdAt?: Date;
   updatedAt?: Date;
   users?: UserInstance[];
 }
 
-export const Session = sequelize.define<SessionInstance>(
-  "Session",
+export const Room = sequelize.define<RoomInstance>(
+  "Room",
   {
     id: {
       type: DataTypes.INTEGER,
@@ -51,13 +51,13 @@ export const Session = sequelize.define<SessionInstance>(
   }
 );
 
-Session.hasMany(User, {
+Room.hasMany(User, {
   sourceKey: "id",
-  foreignKey: "sessionId",
+  foreignKey: "roomId",
   as: "users",
 });
 
-User.belongsTo(Session, {
-  foreignKey: "sessionId",
-  as: "session",
+User.belongsTo(Room, {
+  foreignKey: "roomId",
+  as: "room",
 });

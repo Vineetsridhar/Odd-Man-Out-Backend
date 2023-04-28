@@ -1,10 +1,10 @@
 import { generateRandomString } from "../helpers";
-import { Session } from "../models/Session";
+import { Room } from "../models/Room";
 import { User } from "../models/User";
 
-export const getSessions = async (_, response) => {
+export const getRooms = async (_, response) => {
   try {
-    const sessions = await Session.findAll({
+    const rooms = await Room.findAll({
       include: [
         {
           model: User,
@@ -12,17 +12,17 @@ export const getSessions = async (_, response) => {
         },
       ],
     });
-    response.json({ sessions });
+    response.json({ rooms });
   } catch (error) {
-    console.error("Error getting sessions:", error);
-    response.status(500).json({ error: "Error getting sessions" });
+    console.error("Error getting rooms:", error);
+    response.status(500).json({ error: "Error getting rooms" });
   }
 };
 
-export const getSession = async (request, response) => {
+export const getRoom = async (request, response) => {
   try {
     const { roomCode } = request.params;
-    const session = await Session.findOne({
+    const room = await Room.findOne({
       where: { roomCode },
       include: [
         {
@@ -31,14 +31,14 @@ export const getSession = async (request, response) => {
         },
       ],
     });
-    response.json({ session });
+    response.json({ room });
   } catch (error) {
-    console.error("Error getting session:", error);
-    response.status(500).json({ error: "Error getting session" });
+    console.error("Error getting room:", error);
+    response.status(500).json({ error: "Error getting room" });
   }
 };
 
-export const createGameSession = async (request, response) => {
+export const createGameRoom = async (request, response) => {
   try {
     const { nickname } = request.body;
     if (!nickname) {
@@ -46,24 +46,25 @@ export const createGameSession = async (request, response) => {
     }
 
     const roomCode = generateRandomString();
-    const session = await Session.create({ roomCode, gameType: "classic" });
+    const room = await Room.create({ roomCode, gameType: "classic" });
     const user = await User.create({
       nickname,
       isHost: true,
       points: 0,
-      sessionId: session.id,
+      roomId: room.id,
+      sessionId: request.sessionID,
     });
 
-    response.json({ session, user });
+    response.json({ room, user });
   } catch (error) {
-    console.error("Error creating game session:", error);
+    console.error("Error creating game room:", error);
     response
       .status(500)
       .json({ error: "There was an error when creating your room" });
   }
 };
 
-export const joinGameSession = async (request, response) => {
+export const joinGameRoom = async (request, response) => {
   try {
     const { nickname, roomCode } = request.body;
     if (!nickname || !roomCode) {
@@ -72,7 +73,7 @@ export const joinGameSession = async (request, response) => {
         .json({ error: "Missing nickname or roomCode" });
     }
 
-    const session = await Session.findOne({
+    const room = await Room.findOne({
       where: {
         roomCode,
       },
@@ -84,16 +85,16 @@ export const joinGameSession = async (request, response) => {
       ],
     });
 
-    if (!session) {
-      return response.status(404).json({ error: "Session not found" });
+    if (!room) {
+      return response.status(404).json({ error: "Room not found" });
     }
-    if (session.users.length >= 10) {
+    if (room.users.length >= 10) {
       return response.status(400).json({ error: "Game is full" });
     }
-    if (session.users.find((user) => user.nickname === nickname)) {
+    if (room.users.find((user) => user.nickname === nickname)) {
       return response.status(400).json({ error: "Nickname already taken" });
     }
-    if (session.gameEndedAt) {
+    if (room.gameEndedAt) {
       return response.status(400).json({ error: "Game has ended" });
     }
 
@@ -101,13 +102,14 @@ export const joinGameSession = async (request, response) => {
       nickname,
       isHost: false,
       points: 0,
-      sessionId: session.id,
+      roomId: room.id,
+      sessionId: request.sessionID,
     });
-    session.users.push(user);
+    room.users.push(user);
 
-    response.json({ session, user });
+    response.json({ room, user });
   } catch (error) {
-    console.error("Error joining game session:", error);
+    console.error("Error joining game room:", error);
     response
       .status(500)
       .json({ error: "There was an error when trying to join the room" });
