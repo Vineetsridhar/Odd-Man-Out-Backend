@@ -1,8 +1,12 @@
 import { generateRandomString } from "../helpers";
 import { Room } from "../models/Room";
 import { User } from "../models/User";
+import express from "express";
 
-export const getRooms = async (_, response) => {
+export const getRooms = async (
+  _: express.Request,
+  response: express.Response
+) => {
   try {
     const rooms = await Room.findAll({
       include: [
@@ -19,7 +23,10 @@ export const getRooms = async (_, response) => {
   }
 };
 
-export const getRoom = async (request, response) => {
+export const getRoom = async (
+  request: express.Request,
+  response: express.Response
+) => {
   try {
     const { roomCode } = request.params;
     const room = await Room.findOne({
@@ -38,7 +45,10 @@ export const getRoom = async (request, response) => {
   }
 };
 
-export const createGameRoom = async (request, response) => {
+export const createGameRoom = async (
+  request: express.Request,
+  response: express.Response
+) => {
   try {
     const { nickname } = request.body;
     if (!nickname) {
@@ -71,7 +81,10 @@ export const createGameRoom = async (request, response) => {
   }
 };
 
-export const joinGameRoom = async (request, response) => {
+export const joinGameRoom = async (
+  request: express.Request,
+  response: express.Response
+) => {
   try {
     const { nickname, roomCode } = request.body;
     if (!nickname || !roomCode) {
@@ -131,7 +144,10 @@ export const joinGameRoom = async (request, response) => {
   }
 };
 
-export const joinGameRoomCookie = async (request, response) => {
+export const joinGameRoomCookie = async (
+  request: express.Request,
+  response: express.Response
+) => {
   try {
     if (!request.cookies.data) {
       return response.status(400).json({ error: "Missing cookie" });
@@ -178,7 +194,33 @@ export const joinGameRoomCookie = async (request, response) => {
   }
 };
 
-export const leaveGameRoom = async (request, response) => {
+const setGameHost = async (roomCode: string) => {
+  const room = await Room.findOne({
+    where: {
+      roomCode,
+    },
+    include: [
+      {
+        model: User,
+        as: "users",
+      },
+    ],
+  });
+
+  const users = room.users;
+  if (users.length === 0) {
+    room.destroy();
+    return false;
+  }
+
+  users[0].update({ isHost: true });
+  return true;
+};
+
+export const leaveGameRoom = async (
+  request: express.Request,
+  response: express.Response
+) => {
   try {
     const { data } = request.cookies;
     const { userId } = data;
@@ -194,6 +236,10 @@ export const leaveGameRoom = async (request, response) => {
     }
 
     await user.destroy();
+
+    if (user.isHost) {
+      await setGameHost(data.roomCode);
+    }
 
     response.clearCookie("data");
 

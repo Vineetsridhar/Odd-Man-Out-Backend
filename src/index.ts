@@ -10,6 +10,7 @@ dotenv.config();
 import cookieParser from "cookie-parser";
 import { Room } from "./models/Room";
 import { User } from "./models/User";
+import gameRouter from "./routes/gameRouter";
 
 const startDatabase = async () => {
   await database.connect();
@@ -36,6 +37,8 @@ app.use(
   })
 );
 
+app.set("socketio", io);
+
 io.use((socket, next) => {
   const request = socket.request;
   const response = (request as any).res;
@@ -49,6 +52,7 @@ app.use(cookieParser());
 app.use(bodyParser.json());
 
 app.use("/rooms", roomRouter);
+app.use("/game", gameRouter);
 
 io.on("connection", (socket) => {
   console.log("User connected");
@@ -88,7 +92,7 @@ io.on("connection", (socket) => {
       ],
     });
 
-    socket.to(roomCode).emit("users-change", room.users);
+    if (room) socket.to(roomCode).emit("users-change", room.users);
   });
 });
 
