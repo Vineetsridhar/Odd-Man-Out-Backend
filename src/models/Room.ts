@@ -1,6 +1,7 @@
 import { DataTypes, Model, Optional, Sequelize, UUIDV1 } from "sequelize";
 import { sequelize } from "../database/database";
-import { User, UserInstance } from "./User";
+import { UserInstance } from "./User";
+import { RoundInstance } from "./Round";
 
 type GameType = "classic";
 type RoomAttributes = {
@@ -19,6 +20,7 @@ export interface RoomInstance
   createdAt?: Date;
   updatedAt?: Date;
   users?: UserInstance[];
+  rounds?: RoundInstance[];
 }
 
 export const Room = sequelize.define<RoomInstance>(
@@ -51,14 +53,3 @@ export const Room = sequelize.define<RoomInstance>(
     indexes: [{ unique: true, fields: ["roomCode"] }],
   }
 );
-
-Room.hasMany(User, {
-  sourceKey: "id",
-  foreignKey: "roomId",
-  as: "users",
-});
-
-User.belongsTo(Room, {
-  foreignKey: "roomId",
-  as: "room",
-});
