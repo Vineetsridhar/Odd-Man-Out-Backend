@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional, Sequelize, UUIDV1 } from "sequelize";
+import { DataTypes, Model, Optional, UUIDV1 } from "sequelize";
 import { sequelize } from "../database/database";
 import { UserInstance } from "./User";
 import { RoundInstance } from "./Round";

@@ -1,12 +1,4 @@
-import {
-  DataTypes,
-  IntegerDataType,
-  Model,
-  Optional,
-  Sequelize,
-  SmallIntegerDataType,
-  UUIDV1,
-} from "sequelize";
+import { DataTypes, Model, Optional, UUIDV1 } from "sequelize";
 import { sequelize } from "../database/database";
 import { RoomInstance } from "./Room";
 import { UserInstance } from "./User";

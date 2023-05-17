@@ -77,4 +77,8 @@ export function setUpRelationships() {
     foreignKey: "voterId",
     as: "voter",
   });
+  Vote.belongsTo(User, {
+    foreignKey: "votedId",
+    as: "votedFor",
+  });
 }

@@ -10,10 +10,12 @@ dotenv.config();
 import cookieParser from "cookie-parser";
 import { Room } from "./models/Room";
 import { User } from "./models/User";
+import { setUpRelationships } from "./models/relations";
 
 const startDatabase = async () => {
   await database.connect();
   await database.sync();
+  setUpRelationships();
 };
 
 startDatabase();

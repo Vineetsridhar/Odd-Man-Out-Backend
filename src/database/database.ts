@@ -1,6 +1,5 @@
 import { Sequelize } from "sequelize";
 import * as dotenv from "dotenv";
-import { setUpRelationships } from "../models/relations";
 dotenv.config();
 
 export const sequelize = new Sequelize(
@@ -24,7 +23,6 @@ export const connect = async () => {
 
 export const sync = async () => {
   try {
-    setUpRelationships();
     await sequelize.sync();
     console.log("Database synced successfully.");
   } catch (error) {

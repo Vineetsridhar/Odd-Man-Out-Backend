@@ -1,4 +1,4 @@
-import { DataTypes, Model, Optional, UUIDV1, UUIDV4 } from "sequelize";
+import { DataTypes, Model, Optional, UUIDV1 } from "sequelize";
 import { sequelize } from "../database/database";
 import { RoomInstance } from "./Room";
 
